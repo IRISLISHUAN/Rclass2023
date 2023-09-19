@@ -1,0 +1,68 @@
+---
+title: "HW_practice2.2"
+author: "Iris"
+date: "2023-09-19"
+output: html_document
+---
+
+#check my work directory
+```{r}
+getwd()
+setwd("C:/Users/IRIS/Documents/R_class/Rclass2023/w3")
+```
+
+#library all the package that i will use later
+```{r}
+library(readxl)
+library(dplyr)
+library(tidyr)
+```
+
+#read table
+```{r}
+rairuoho<-read.table("rairuoho.txt", TRUE, "\t")
+```
+
+#Replace nutrient with enriched
+```{r}
+rairuoho <- rairuoho %>%
+  mutate(treatment = ifelse(treatment == "nutrient", "enriched", "water"))
+```
+
+
+#make day3 to day8 as a single variable factor: day
+#the length of the grass at the given day will be another variable: length
+```{r}
+rairuoho <- rairuoho %>%
+  pivot_longer(cols = day3:day8, 
+               names_to = "day",
+               values_to = "length")
+```
+
+#Merge variables Spatial1 and Spatial2
+```{r}
+rairuoho <- rairuoho %>%
+  unite(upper_left, spatial1, spatial2, sep = "_")
+```
+
+#Remove variables row and column
+```{r}
+rairuoho$row<-NULL
+rairuoho$column<-NULL
+```
+
+#try to make each step together
+```{r}
+rairuoho <- rairuoho<-read.table("rairuoho.txt", TRUE, "\t") %>%
+mutate(treatment = ifelse(treatment == "nutrient", "enriched", "water")) %>%
+pivot_longer(cols = day3:day8, 
+               names_to = "day",
+               values_to = "length") %>%
+unite(upper_left, spatial1, spatial2, sep = "_")
+
+
+rairuoho$row<-NULL
+rairuoho$column<-NULL
+
+```
+
