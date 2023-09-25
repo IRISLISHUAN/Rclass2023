@@ -21,6 +21,7 @@ library(tidyr)
 #read table
 ```{r}
 rairuoho<-read.table("rairuoho.txt", TRUE, "\t")
+head(rairuoho) # just to have an overview of this object
 ```
 
 #Replace nutrient with enriched
@@ -53,7 +54,8 @@ rairuoho$column<-NULL
 
 #try to make each step together
 ```{r}
-rairuoho <- rairuoho<-read.table("rairuoho.txt", TRUE, "\t") %>%
+# I am calling it 'rairuoho_long' to visualize the difference between the two tables
+rairuoho_long <- rairuoho<-read.table("rairuoho.txt", TRUE, "\t") %>%
 mutate(treatment = ifelse(treatment == "nutrient", "enriched", "water")) %>%
 pivot_longer(cols = day3:day8, 
                names_to = "day",
@@ -61,8 +63,9 @@ pivot_longer(cols = day3:day8,
 unite(upper_left, spatial1, spatial2, sep = "_")
 
 
-rairuoho$row<-NULL
-rairuoho$column<-NULL
+rairuoho_long$row<-NULL
+rairuoho_long$column<-NULL
+rairuoho_long
 
 ```
 
