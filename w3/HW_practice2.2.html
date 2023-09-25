@@ -374,7 +374,22 @@ library(dplyr)</code></pre>
 ##     intersect, setdiff, setequal, union</code></pre>
 <pre class="r"><code>library(tidyr)</code></pre>
 <p>#read table</p>
-<pre class="r"><code>rairuoho&lt;-read.table(&quot;rairuoho.txt&quot;, TRUE, &quot;\t&quot;)</code></pre>
+<pre class="r"><code>rairuoho&lt;-read.table(&quot;rairuoho.txt&quot;, TRUE, &quot;\t&quot;)
+head(rairuoho) # just to have an overview of this object</code></pre>
+<pre><code>##   day3 day4 day5 day6 day7 day8 germinate    bed treatment spatial1 spatial2
+## 1    2   13   34   85  112  121        18 paper4  nutrient    upper     left
+## 2    5   22   60   95  108  116        19 mould1  nutrient    upper     left
+## 3    5   26   34   73   96  111        18 paper8  nutrient    upper     left
+## 4    7   24   61   91  101  117        17 mould2  nutrient    upper     left
+## 5    0    9   31   61   92  116        12 paper4  nutrient    lower     left
+## 6    7   30   66   91  116  129        18 mould1  nutrient    lower     left
+##   row column
+## 1   1      1
+## 2   2      1
+## 3   3      1
+## 4   4      1
+## 5   5      1
+## 6   6      1</code></pre>
 <p>#Replace nutrient with enriched</p>
 <pre class="r"><code>rairuoho &lt;- rairuoho %&gt;%
   mutate(treatment = ifelse(treatment == &quot;nutrient&quot;, &quot;enriched&quot;, &quot;water&quot;))</code></pre>
@@ -391,7 +406,8 @@ the grass at the given day will be another variable: length</p>
 <pre class="r"><code>rairuoho$row&lt;-NULL
 rairuoho$column&lt;-NULL</code></pre>
 <p>#try to make each step together</p>
-<pre class="r"><code>rairuoho &lt;- rairuoho&lt;-read.table(&quot;rairuoho.txt&quot;, TRUE, &quot;\t&quot;) %&gt;%
+<pre class="r"><code># I am calling it &#39;rairuoho_long&#39; to visualize the difference between the two tables
+rairuoho_long &lt;- rairuoho&lt;-read.table(&quot;rairuoho.txt&quot;, TRUE, &quot;\t&quot;) %&gt;%
 mutate(treatment = ifelse(treatment == &quot;nutrient&quot;, &quot;enriched&quot;, &quot;water&quot;)) %&gt;%
 pivot_longer(cols = day3:day8, 
                names_to = &quot;day&quot;,
@@ -399,8 +415,23 @@ pivot_longer(cols = day3:day8,
 unite(upper_left, spatial1, spatial2, sep = &quot;_&quot;)
 
 
-rairuoho$row&lt;-NULL
-rairuoho$column&lt;-NULL</code></pre>
+rairuoho_long$row&lt;-NULL
+rairuoho_long$column&lt;-NULL
+rairuoho_long</code></pre>
+<pre><code>## # A tibble: 288 × 6
+##    germinate bed    treatment upper_left day   length
+##        &lt;int&gt; &lt;chr&gt;  &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;  &lt;int&gt;
+##  1        18 paper4 enriched  upper_left day3       2
+##  2        18 paper4 enriched  upper_left day4      13
+##  3        18 paper4 enriched  upper_left day5      34
+##  4        18 paper4 enriched  upper_left day6      85
+##  5        18 paper4 enriched  upper_left day7     112
+##  6        18 paper4 enriched  upper_left day8     121
+##  7        19 mould1 enriched  upper_left day3       5
+##  8        19 mould1 enriched  upper_left day4      22
+##  9        19 mould1 enriched  upper_left day5      60
+## 10        19 mould1 enriched  upper_left day6      95
+## # ℹ 278 more rows</code></pre>
 
 
 

@@ -55,6 +55,7 @@ rairuoho$column<-NULL
 #try to make each step together
 ```{r}
 # I am calling it 'rairuoho_long' to visualize the difference between the two tables
+
 rairuoho_long <- rairuoho<-read.table("rairuoho.txt", TRUE, "\t") %>%
 mutate(treatment = ifelse(treatment == "nutrient", "enriched", "water")) %>%
 pivot_longer(cols = day3:day8, 
