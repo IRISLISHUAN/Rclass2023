@@ -1,0 +1,88 @@
+---
+title: "HW_practice3.2"
+author: "Iris"
+date: "2023-09-26"
+output: html_document
+---
+
+#creat the data frame
+```{r}
+# Create vectors for weight_before and weight_after
+weight_before<- c(104, 95, 87, 77, 112)
+weight_after<-c(96, 91, 81, 75, 118)
+
+#Combine the vectors into a data frame
+diet<-data.frame(
+  before_diet = weight_before,
+  after_diet = weight_after
+)
+
+#change the row names
+subject_number <- paste("subject_", 1:5, sep = "")
+rownames(diet) <- subject_number
+
+head(diet)
+
+```
+
+
+#Reformat this data frame
+```{r}
+library(dplyr)
+library(tidyr)
+
+#check the type of weight_before and weight_after
+typeof(weight_before)
+typeof(weight_after)
+
+reformatted_diet<- diet %>%
+  gather(time, weight) %>%  # two column
+  mutate(time = factor(time, levels = c("before_diet", "after_diet"))) #time of measurement as a factor with two levels before_diet and after_diet. 
+
+#check the levels of time
+levels(reformatted_diet$time)
+```
+
+
+#first element of BUBBLE_DIET.
+```{r}
+#creat a list called BUBBLE_DIET
+BUBBLE_DIET <- list()
+
+BUBBLE_DIET[[1]]<-reformatted_diet
+```
+
+#Second element of BUBBLE_DIET.
+```{r}
+#first element: a vector of character extracting the row names of the table previously created
+subject_number<- rownames(diet)
+
+#second element: a numeric vector (double) indicating the weight loss of each subject
+weight_loss<- ((diet$before_diet - diet$after_diet) / diet$before_diet) * 100
+
+#third element: a combination of these two elements in a table with two columns: subject and weight_loss.
+weight_loss_table<- data.frame(
+  subject = subject_number,
+  weight_loss = weight_loss
+)
+
+#Second element of BUBBLE_DIET.
+WEIGHT_LOSS<- list(
+  row_names = subject_number,
+  weight_loss = weight_loss,
+  weight_loss_table = weight_loss_table
+)
+
+BUBBLE_DIET[[2]]<-WEIGHT_LOSS
+```
+
+#third element of BUBBLE_DIET
+```{r}
+BUBBLE_DIET[[3]] <- "Realy enjoy it"
+```
+
+#check BUBBLE_DIET
+```{r}
+str(BUBBLE_DIET)
+```
+
