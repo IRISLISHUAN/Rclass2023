@@ -5,21 +5,15 @@ date: "2023-09-26"
 output: html_document
 ---
 
-#creat the data frame
+#creat data frame
 ```{r}
-# Create vectors for weight_before and weight_after
-weight_before<- c(104, 95, 87, 77, 112)
-weight_after<-c(96, 91, 81, 75, 118)
-
-#Combine the vectors into a data frame
 diet<-data.frame(
-  before_diet = weight_before,
-  after_diet = weight_after
+  before_diet = c(104, 95, 87, 77, 112),
+  after_diet = c(96, 91, 81, 75, 118)
 )
 
 #change the row names
-subject_number <- paste("subject_", 1:5, sep = "")
-rownames(diet) <- subject_number
+rownames(diet) <- paste("subject_", 1:5, sep = "")
 
 head(diet)
 
@@ -32,8 +26,8 @@ library(dplyr)
 library(tidyr)
 
 #check the type of weight_before and weight_after
-typeof(weight_before)
-typeof(weight_after)
+typeof(diet$before_diet)
+typeof(diet$after_diet)
 
 reformatted_diet<- diet %>%
   gather(time, weight) %>%  # two column

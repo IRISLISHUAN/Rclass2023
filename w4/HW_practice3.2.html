@@ -357,20 +357,14 @@ display: none;
 </div>
 
 
-<p>#creat the data frame</p>
-<pre class="r"><code># Create vectors for weight_before and weight_after
-weight_before&lt;- c(104, 95, 87, 77, 112)
-weight_after&lt;-c(96, 91, 81, 75, 118)
-
-#Combine the vectors into a data frame
-diet&lt;-data.frame(
-  before_diet = weight_before,
-  after_diet = weight_after
+<p>#creat data frame</p>
+<pre class="r"><code>diet&lt;-data.frame(
+  before_diet = c(104, 95, 87, 77, 112),
+  after_diet = c(96, 91, 81, 75, 118)
 )
 
 #change the row names
-subject_number &lt;- paste(&quot;subject_&quot;, 1:5, sep = &quot;&quot;)
-rownames(diet) &lt;- subject_number
+rownames(diet) &lt;- paste(&quot;subject_&quot;, 1:5, sep = &quot;&quot;)
 
 head(diet)</code></pre>
 <pre><code>##           before_diet after_diet
@@ -392,9 +386,9 @@ head(diet)</code></pre>
 <pre class="r"><code>library(tidyr)
 
 #check the type of weight_before and weight_after
-typeof(weight_before)</code></pre>
+typeof(diet$before_diet)</code></pre>
 <pre><code>## [1] &quot;double&quot;</code></pre>
-<pre class="r"><code>typeof(weight_after)</code></pre>
+<pre class="r"><code>typeof(diet$after_diet)</code></pre>
 <pre><code>## [1] &quot;double&quot;</code></pre>
 <pre class="r"><code>reformatted_diet&lt;- diet %&gt;%
   gather(time, weight) %&gt;%  # two column
