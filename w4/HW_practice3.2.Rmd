@@ -73,6 +73,8 @@ BUBBLE_DIET[[2]]<-WEIGHT_LOSS
 #third element of BUBBLE_DIET
 ```{r}
 BUBBLE_DIET[[3]] <- "Realy enjoy it"
+# I am glad you enjoyed it. That's perfect, keep going! 
+
 ```
 
 #check BUBBLE_DIET
