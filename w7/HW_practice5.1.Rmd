@@ -1,0 +1,86 @@
+---
+title: "HW_practice5.1"
+author: "Iris"
+date: "2023-10-17"
+output: html_document
+---
+```{r}
+getwd()
+setwd("C:/Users/IRIS/Documents/R_class/Rclass2023/w7")
+```
+
+```{r, message=FALSE, warning=FALSE}
+library(leaflet)
+library(rgbif)
+library(tidyverse)
+library(data.table)
+library(dplyr)
+library(sf)
+library(tidyr)
+library(leaflet.extras)
+
+```
+
+#Pinus taiwanensis is one of my favorite trees, so I want to make a leaflet map of the distribution of Pinus taiwanensis in Taiwan.
+```{r}
+#download the observation record data from GBIF
+Pinus<- fread("Pinus taiwanensis Hayata.csv", na.strings = c("", NA))
+
+
+#changed the format to data table
+Pinus.dt<- as.data.table(Pinus)
+
+#The observation record data has some records from other countries, so select the record from Taiwan and make another subset.
+Pinus_taiwan<-Pinus.dt[countryCode=="TW",]
+
+#some values of latitude and longitude are zero, so make these values as null value.
+Pinus_taiwan[decimalLatitude==0]<-NA
+
+#Drop rows containing missing values
+Pinus_taiwan <- Pinus_taiwan %>% 
+         drop_na(decimalLatitude) %>% 
+         drop_na(decimalLongitude)
+
+
+```
+
+#rename the column of latitude and longitude
+```{r}
+Pinus_taiwan <- dplyr::rename(Pinus_taiwan, 
+                       latitude = decimalLatitude, 
+                       longitude = decimalLongitude)
+
+
+
+
+```
+
+#leaflet map
+```{r}
+#I want to use a cute icon for the markers on this map.
+pinus_icon <- makeIcon("pinus icon.png",20, 20)
+
+#Pinus taiwanensis distribution map in Taiwan
+Pinus_map <- leaflet(Pinus_taiwan) %>%
+  addTiles() %>%  
+  addMarkers(~longitude, 
+             ~latitude, 
+             popup = paste("species: ", Pinus_taiwan$species, "<br>",
+                           "latitude: ", Pinus_taiwan$latitude, "<br>",
+                           "longitude: ", Pinus_taiwan$longitude, "<br>"), 
+             icon = pinus_icon)
+  
+Pinus_map
+
+#heatmap
+Pinus_heatmap <- leaflet(Pinus_taiwan) %>%
+  addTiles() %>%
+  addHeatmap(lng = ~longitude, lat = ~latitude, radius = 15,)
+
+Pinus_heatmap
+```
+
+
+
+
+
