@@ -35,13 +35,15 @@ grow <- function(start_1, start_2) {
   }
   
   par(mar = c(5, 4, 1, 1))
+  
   if (N1[1]>0) {
   plot(N1~generation, type = "b", ylim = c(0, max(K1, K2)), ylab = "N", las=1)
   } else {
     plot(N1~generation, type = "n", ylim = c(0, max(K1, K2)), ylab = "N", las=1)
   }
+  
   if (N2[1]>0){
-    lines(generation, N2, col = "red", type = "b")
+    lines(N2~generation, col = "red", type = "b")
   }
   
   legend("topleft", legend = c("Species 1", "Species 2"), col = 1:2, lty = 1, cex = 0.8)
@@ -57,7 +59,9 @@ text(25,60,"Species 2 alone")
 grow(1,2)
 text(25,60,"Both Species competing")
 
+
 ```
+
 
 
 

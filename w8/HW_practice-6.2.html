@@ -385,13 +385,15 @@ grow &lt;- function(start_1, start_2) {
   }
   
   par(mar = c(5, 4, 1, 1))
+  
   if (N1[1]&gt;0) {
   plot(N1~generation, type = &quot;b&quot;, ylim = c(0, max(K1, K2)), ylab = &quot;N&quot;, las=1)
   } else {
     plot(N1~generation, type = &quot;n&quot;, ylim = c(0, max(K1, K2)), ylab = &quot;N&quot;, las=1)
   }
+  
   if (N2[1]&gt;0){
-    lines(generation, N2, col = &quot;red&quot;, type = &quot;b&quot;)
+    lines(N2~generation, col = &quot;red&quot;, type = &quot;b&quot;)
   }
   
   legend(&quot;topleft&quot;, legend = c(&quot;Species 1&quot;, &quot;Species 2&quot;), col = 1:2, lty = 1, cex = 0.8)
