@@ -1,0 +1,63 @@
+---
+title: "HW_practice 6.2"
+author: "Iris"
+date: "2023-10-26"
+output: html_document
+---
+
+$$N1_{t+1}= N1_{t}+\left[growth.rate*N1_{t}*\left(\frac{K1-N1_{t}-\alpha_{12}N2_{t}}{K1}\right)\right]$$
+$$N2_{t+1}= N2_{t}+\left[growth.rate*N2_{t}*\left(\frac{K2-N2_{t}-\alpha_{21}N2_{t}}{K2}\right)\right]$$
+
+
+```{r}
+
+#N1[i] = N1[i-1] + (growth.rate* N1[i-1] * ((K1-N1[i-1]-(a12*N2[i-1]))/K1))
+#N2[i] = N2[i-1] + (growth.rate * N2[i-1] * ((K2-N2[i-1]-(a21*N1[i-1]))*K2))
+
+grow <- function(start_1, start_2) {
+  num_gen <- 30
+  N1 <- rep(0, num_gen)
+  N2 <- rep(0, num_gen)
+  generation <- rep(0, num_gen)
+  generation[1] = 1
+  growth.rate <- 1.2
+  K1 <- 100
+  K2 <- 120
+  a12 <- 0.8
+  a21 <- 0.8
+  N1[1] <- start_1
+  N2[1] <- start_2
+  
+  for (i in 2:num_gen) {
+    N1[i] <- N1[i - 1] + (growth.rate * N1[i - 1] * (K1 - N1[i - 1] - a12 * N2[i - 1]) / K1)
+    N2[i] <- N2[i - 1] + (growth.rate * N2[i - 1] * (K2 - N2[i - 1] - a21 * N1[i - 1]) / K2)
+    generation[i] = i
+  }
+  
+  par(mar = c(5, 4, 1, 1))
+  if (N1[1]>0) {
+  plot(N1~generation, type = "b", ylim = c(0, max(K1, K2)), ylab = "N", las=1)
+  } else {
+    plot(N1~generation, type = "n", ylim = c(0, max(K1, K2)), ylab = "N", las=1)
+  }
+  if (N2[1]>0){
+    lines(generation, N2, col = "red", type = "b")
+  }
+  
+  legend("topleft", legend = c("Species 1", "Species 2"), col = 1:2, lty = 1, cex = 0.8)
+}
+
+
+grow(1,0)
+text(25,60,"Species 1 alone")
+
+grow(0,1)
+text(25,60,"Species 2 alone")
+
+grow(1,2)
+text(25,60,"Both Species competing")
+
+```
+
+
+
