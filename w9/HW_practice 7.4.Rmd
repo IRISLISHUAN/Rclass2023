@@ -1,0 +1,125 @@
+---
+title: "HW_practice 7.4"
+author: "Iris"
+date: "2023-11-03"
+output: html_document
+---
+
+```{r}
+getwd()
+setwd("C:/Users/IRIS/Documents/R_class/Rclass2023/w9")
+```
+
+
+#student t test
+#list all the required parameters
+```{r, message=FALSE, warning=FALSE}
+
+x <- c(4, 5, 6)
+y <- c(1, 2, 3)
+
+#mean
+x_mean <- mean(x)
+y_mean <- mean(y)
+
+##stander deviation
+x_sd <- sd(x)
+y_sd <- sd(y)
+
+##t-test
+
+#paired sample t-test
+differs<- x - y
+n <- length(x)
+
+t <- mean(differs)/(sd(differs)/sqrt(n))
+
+
+##two samples t-test
+n_x <- length(x)
+n_y <- length(y)
+
+t <- (x_mean - y_mean)/ sqrt((x_sd^2/n_x) + (y_sd^2/n_y))
+
+
+##degree of freedom
+
+#paired sample t-test
+df <- n-1
+
+#two samples t-test
+df <- (n_x + n_y) - 2
+
+##p-value
+p <- 2* pt(t, df)
+
+
+```
+
+#creat my_t.test function
+```{r}
+
+my_t.test <- function(x, y, paired) {
+  x_mean <- mean(x)
+  y_mean <- mean(y)
+  x_sd <- sd(x)
+  y_sd <- sd(y)
+  
+  if (paired == TRUE) {
+    differs<- x - y
+    n <- length(x)
+    t <- mean(differs)/(sd(differs)/sqrt(n))
+  } else {
+    n_x <- length(x)
+    n_y <- length(y)
+    t <- (x_mean - y_mean)/ sqrt((x_sd^2/n_x) + (y_sd^2/n_y))
+  }
+  
+  if (paired) {
+    df <- n - 1
+  } else {
+    df <- (n_x + n_y )- 2
+  }
+  
+  p <- 2*pt(t, df)
+  
+  result <- list(
+    t = t,
+    df = df,
+    p_value = p,
+    method = ifelse(paired, "Paired t-test", "Two-sample t-test")
+  )
+  print(result)
+}
+  
+
+#test my_t.test function work or not
+test_a<- c(73, 62, 67, 73, 54, 70, 67, 65)
+test_b<- c(76, 74, 72, 72, 56, 70, 76, 72)
+
+#t-test function in Rstudio
+t.test(test_a, test_b, paired=F)
+
+#my_t.test function
+my_t.test(test_a, test_b, FALSE)
+```
+
+#test the effect of treatment on length at various days in the rairuoho dataset
+```{r}
+library(readxl)
+rairuoho <- read.table("rairuoho.txt", TRUE, "\t")
+
+
+#set two types of treatment to a subset
+nutrient <- rairuoho[rairuoho$treatment == "nutrient",]
+water <- rairuoho[rairuoho$treatment == "water",]
+
+
+#I wonder if different treatment would affect length or not, so the H0 is different treatment would not affect to length, and H1 is different treatment would affect to length.
+
+
+my_t.test(nutrient$day3, water$day3, TRUE)
+
+# because absolute value of t=0.94 is more than p_value= 0.35, reject H0 and accept H1 that different treatment would affect to length.
+```
+
