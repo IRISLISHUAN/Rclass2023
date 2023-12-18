@@ -163,7 +163,7 @@ Distribution
 
 Step by step to analysis our data by each genus.
 
-First one is <em>Amphiprion</em>.
+First is <em>Amphiprion</em>.
 
 Check how many species have been observed and their observation numbers in 2016 and 2019.
 ```{r}
@@ -179,7 +179,7 @@ Amphiprion_2016_species <- Amphiprion_2016[, unique(number), by =c("species_name
 Amphiprion_2016_species<- dplyr::rename(Amphiprion_2016_species, species_number=V1)
 
 #Use a bar plot to see the observation numbers for each species.
-#This plot represents every species observation number for Amphiprion in 2016.
+#This plot represents every species observation numbers for Amphiprion in 2016.
 ggplot(Amphiprion_2016_species, aes(x= species_name, y= species_number)) +
   geom_bar(stat = "identity")+
   ggtitle("Amphiprion species 2016")+
@@ -187,7 +187,7 @@ ggplot(Amphiprion_2016_species, aes(x= species_name, y= species_number)) +
   theme(axis.text.x = element_text(vjust = 0.65, angle = 30))
 
 #2019
-#Use the same method as above to create the bar plot of every species observation number of Amphiprion in 2019.
+#Use the same method as above to create the bar plot of every species observation numbers of Amphiprion in 2019.
 Amphiprion_2019 <- Amphiprion_2019[, number := sum(total), by= species_name]
 Amphiprion_2019_species <- Amphiprion_2019[, unique(number), by =c("species_name", "family")]
 Amphiprion_2019_species<- dplyr::rename(Amphiprion_2019_species, species_number=V1)
