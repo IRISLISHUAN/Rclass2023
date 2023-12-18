@@ -1,41 +1,39 @@
 ---
-title: "R-class final report"
-author: "Lin, Ting-Chang, Chang, Hsin-Yu, Liu, Li-Hsuan"
+title: "The impact of El Niño on the Species Composition of Genera <em>Amphiprion</em> and <em>Lutjanus</em> in Australia"
+author: "R12241209 Lin, Ting-Chang, R12241202 Chang, Hsin-Yu, R12241206 Liu, Li-Hsuan"
 date: "2023-12-08"
 output: html_document
 ---
 
-Group members:
-R12241209 Lin, Ting-Chang, 
-R12241202 Chang, Hsin-Yu, 
-R12241206 Liu, Li-Hsuan
+<font size="5">Introduction</font><br>
 
-Introduction
+In this project, we manipulated the <em>‘IMOS - National Reef Monitoring Network Sub-Facility - Global reef fish abundance and biomass’</em> data set from Systematic global assessment of reef fish communities by the Reef Life Survey program. After manipulating the data, we observed that most of it was collected around Australia. Thus, we decided to restrict our survey area in Australia. We identified two genera, <em>Amphiprion</em> and <em>Hypoplectrodes</em>, which are distributed in the northern and southern coastal areas of Australia, respectively. We chose to compare the species composition of <em>Amphiprion</em> and <em>Hypoplectrodes</em> during El Niño years and normal years to assess if El Niño has different impacts on tropical and subtropical genera.
 
-  In this project, we manipulated the <em>‘IMOS - National Reef Monitoring Network Sub-Facility - Global reef fish abundance and biomass’</em> data set from Systematic global assessment of reef fish communities by the Reef Life Survey program. After manipulating the data, we observed that most of it was collected around Australia. Thus, we decided to restrict our survey area in Australia. We identified two genera, <em>Amphiprion</em> and <em>Hypoplectrodes</em>, which are distributed in the northern and southern coastal areas of Australia, respectively. We chose to compare the species composition of <em>Amphiprion</em> and <em>Hypoplectrodes</em> during El Niño years and normal years to assess if El Niño has different impacts on tropical and subtropical genera.
+Yet, after calculating the number of individuals of <em>Hypoplectrodes</em> in different years, we discovered a dominant species, <em>Hypoplectrodes maccullochi</em>, within the genus <em>Hypoplectrodes</em> around Australia. Recognizing that the test of homogeneity would be inefficient in this case, we decided to shift our focus and compare the species composition of <em>Amphiprion</em> and <em>Lutjanus</em>. Both genera have sufficient survey data in this dataset.
 
-  Yet, after calculating the number of individuals of <em>Hypoplectrodes</em> in different years, we discovered a dominant species, <em>Hypoplectrodes maccullochi</em>, within the genus <em>Hypoplectrodes</em> around Australia. Recognizing that the test of homogeneity would be inefficient in this case, we decided to shift our focus and compare the species composition of <em>Amphiprion</em> and <em>Lutjanus</em>. Both genera have sufficient survey data in this dataset.
+•El Niño
 
-•	El Niño
 During El Niño years, the weakening of trade winds causes the North Pacific warm pool to shift toward the east side. As a result, the surface seawater temperature (SST) around Australia will be lower than normal. We expect this difference in SST will have impacts on species composition of tropical and subtropical genera to different extent.
 (https://geographical.co.uk/science-environment/geo-explainer-el-nino)
 
-•	The optimal temperature for Amphiprion, Hypoplectrodes and Lutjanus
-Amphiprion: For the well-researched A. ocellaris,  the optimal temperature is said to be around 29℃ or 30℃ (Soman et al., 2021; Velasco et al., 2019).
-Hypoplectrodes: According to FishBase (https://www.fishbase.se/search.php), the dominant species in Australia, H. maccullochi, has a preferred temperature range of 17.3℃ to 24.7℃.
-Lutjanus: There are abundant species in this genus, so we can only generalize their preferred temperature range to be between 18℃ and 29℃.
+•The optimal temperature for <em>Amphiprion</em>, <em>Hypoplectrodes</em> and <em>Lutjanus</em>
 
-•	Hypothesis
-H0: The species composition of Amphiprion and Lutjanus during El Niño years and normal years shows no differences.
-H1: The species composition of Amphiprion and Lutjanus during El Niño years and normal years shows differences.
+<em>Amphiprion</em>: For the well-researched A. ocellaris,  the optimal temperature is said to be around 29℃ or 30℃ (Soman et al., 2021; Velasco et al., 2019).
+<em>Hypoplectrodes</em>: According to FishBase (https://www.fishbase.se/search.php), the dominant species in Australia, H. maccullochi, has a preferred temperature range of 17.3℃ to 24.7℃.
+<em>Lutjanus</em>: There are abundant species in this genus, so we can only generalize their preferred temperature range to be between 18℃ and 29℃.
 
-Methods
+•Hypothesis
+
+H0: The species composition of <em>Amphiprion</em> and <em>Lutjanus</em> during El Niño years and normal years shows no differences.
+
+H1: The species composition of <em>Amphiprion</em> and <em>Lutjanus</em> during El Niño years and normal years shows differences.
+
+<font size="5">Methods</font><br>
 
 Check the working directory.
-```{r}
+```{r, message=FALSE, warning=FALSE}
 getwd()
 ```
-
 
 Library all packages we would use.
 ```{r, message=FALSE, warning=FALSE}
@@ -69,7 +67,6 @@ colnames(Data_dt) <- as.character(Data_dt[1, ])
 Data_dt <-Data_dt[-c(1), ]
 ```
 
-
 We chose Australia as the place we want to focus on.
 
 Make a subset of survey data that is from Australia.
@@ -94,8 +91,7 @@ Australia$total <-as.numeric(Australia$total)
 Australia<- as.data.table(Australia)
 ```
 
-
-As we mentioned in the introduction, we chose three genera to test whether their distribution density had changed in two different years. 
+As we mentioned in the introduction, we chose three genera to test our hypothesis.
 
 
 Make subset of three genera.
@@ -165,7 +161,9 @@ Distribution <- leaflet() %>%
 Distribution
 ```
 
-Step by step on each genus.First one is Amphiprion.
+Step by step to analysis our data by each genus.
+
+First one is <em>Amphiprion</em>.
 
 Check how many species have been observed and their observation numbers in 2016 and 2019.
 ```{r}
@@ -230,11 +228,11 @@ ggplot(Amphiprion_2019_species_7, aes(x= species_name, y= species_number)) +
 Amphiprion_2019_species_7[, year:= 2019, by ="family"]
 ```
 
-However, we think that using direct observation numbers to test if there is a significant change between these two years is too subjective. Then we use the observation number divided by the survey number to calculate each species' density.
+However, we thought that used direct observation numbers to test if there was a significant change between these two years was too subjective. Then we used the observation number divided by the survey number to calculate each species' density.
 ```{r}
 Amphiprion_2019_2016 <- rbind(Amphiprion_2019_species_7, Amphiprion_2016_species_7)
 
-#Use species number/ survey number= density
+#species number/ survey number= density
 Amphiprion_2019_2016[year=="2019", density:= (species_number/nrow(Amphiprion_2019))]
 Amphiprion_2019_2016[year=="2016", density:= (species_number/nrow(Amphiprion_2016))]
 
@@ -242,7 +240,7 @@ Amphiprion_2019_2016[year=="2016", density:= (species_number/nrow(Amphiprion_201
 Amphiprion_2019_2016[,log:= log(density)]
 ```
 
-Use two sample t-test and Fligner-Killeen test to test if it is significant between 2016 and 2019.
+Use two sample t-test and Fligner-Killeen test to test if it is significant difference between 2016 and 2019.
 ```{r}
 #Two sample t-test
 t.test(Amphiprion_2019_2016$density~Amphiprion_2019_2016$year)
@@ -250,7 +248,7 @@ t.test(Amphiprion_2019_2016$density~Amphiprion_2019_2016$year)
 #Fligner-Killeen test
 fligner.test (Amphiprion_2019_2016$density~Amphiprion_2019_2016$year)
 ```
-Both p-value are higher than 0.05, so reject our H0 hypothesis.
+Both p-value are higher than 0.05, so reject our H1 hypothesis.
 
 
 Next we make another bar plot to see the density difference between 2016 to 2019 on different species.
@@ -276,7 +274,8 @@ ggplot(Amphiprion_2019_2016_new, aes(x= species_name, y= difference)) +
   theme(axis.text.x = element_text(vjust = 0.65, angle = 35))
 ```
 
-Second genus is Hypoplectrodes.
+
+Second genus is <em>Hypoplectrodes</em>.
 
 Use the same steps as above.
 
@@ -307,11 +306,13 @@ ggplot(Hypoplectrodes_2019_species, aes(x= species_name, y= species_number)) +
   ggeasy::easy_center_title()+
   theme(axis.text.x = element_text(vjust = 0.65))
 ```
-We found that in the genus Hypoplectrodes, there was just one dominant species in 2016 and 2019.So it is hard to test the difference between two years. And then we change the target genus from Hypoplectrodes to Lutjanus.
+We found that in the genus Hypoplectrodes, there was just one dominant species in 2016 and 2019.So it was hard to test the difference between two years. And then we changed the target genus from Hypoplectrodes to Lutjanus.
 
 
-Third genus is Lutjanus
+Third genus is <em>Lutjanus</em>
+
 Also we use the same steps as above.
+
 First is to check how many species have been observed and their observation numbers in 2016 and 2019.
 ```{r}
 #2016
@@ -407,9 +408,9 @@ ggplot(Lutjanus_2019_2016_w_new, aes(x= species_name, y= difference)) +
 ```
 
 
-Result & Discussion
+<font size="5">Result & Discussion</font><br>
 
-In the Australian marine region, the density of different species in the genus Amphiprion showed no difference between the years 2016 and 2019 (two sample t-test p = 0.4939, Fligner-Killeen test of homogeneity p = 0.7819). While the density of different species in the genus Lutjanus also had no difference between 2016 and 2019 (two sample t-test p = 0.755, Fligner-Killeen test of homogeneity p = 0.5737). These results reject our hypothesis that El Niño and normal years would have differences in genus compositions.
+In the Australian marine region, the density of different species in the genus <em>Amphiprion</em> showed no difference between the years 2016 and 2019 (two sample t-test p = 0.4939, Fligner-Killeen test of homogeneity p = 0.7819). While the density of different species in the genus <em>Lutjanus</em> also had no difference between 2016 and 2019 (two sample t-test p = 0.755, Fligner-Killeen test of homogeneity p = 0.5737). These results reject our hypothesis that El Niño and normal years would have differences in genus compositions.
 
 With the unexpected result, we present several possibilities to explain it as much as possible. First, we found out that although 2016 was recorded to have the most dramatic El Niño event in recent years, it surprisingly had higher sea surface temperature (SST) in Australia compared with 2019. This fact may be evidence that the climate change impact on SST was already overtaking the El Niño event, which led to abnormal SST changes under El Niño and normal years. Therefore, when climate change disturbs the effect of El Niño, the impact on these research genera may be neutralized or intensified.
 
@@ -423,4 +424,11 @@ With the unexpected result, we present several possibilities to explain it as mu
 
 Second, to understand the impact of El Niño, we chose 2016 (El Niño year) and 2019 (relatively normal year) with enough genus and species data. However, the time between these two years may not be long enough for the composition of these genera to change. In other words, the genus composition would not change dramatically between these two years. Third, according to the dataset description, the resources of the dataset came from different collaboration memberships. One of the biggest problems was the method of recording the fish, it depended on the diving and recording skills of marine scientists and divers, and other partnerships. With non-specific members, timing, and location, could lead to various biases in fish abundance and affect the research result.
 
-To gain a more specific understanding of the changes in genus composition, two plots illustrating changes in species density were presented.  The result showed that both genera (Amphiprion and Lutjanus) did not have specific change patterns between 2016 and 2019. The possible reason is that these two genera have similar habitat preferences, which are both largely distributed in tropical and sub-tropical oceans. Therefore, they might have similar responses to environmental change, but unfortunately, there were no significant changes can be found in our research (some species' densities increase, others decrease in both genera).
+To gain a more specific understanding of the changes in genus composition, two plots illustrating changes in species density were presented.  The result showed that both genera (<em>Amphiprion</em> and <em>Lutjanus</em>) did not have specific change patterns between 2016 and 2019. The possible reason is that these two genera have similar habitat preferences, which are both largely distributed in tropical and sub-tropical oceans. Therefore, they might have similar responses to environmental change, but unfortunately, there were no significant changes can be found in our research (some species' densities increase, others decrease in both genera).
+
+
+<font size="5">Reference</font><br>
+Soman, M., Chadha, N. K., Madhu, K., Madhu, R., Sawant, P. B., & Francis, B. (2021). Optimization of temperature improves embryonic development and hatching efficiency of false clown fish, Amphiprion ocellaris Cuvier, 1830 under captive condition. Aquaculture, 536, 736417.https://doi.org/https://doi.org/10.1016/j.aquaculture.2021.736417
+
+Velasco, G., Re, A., Diaz, F., Ibarra, L., Parra, M., Rodríguez-Ibarra, L., & Rosas, C. (2019). Thermal preference, tolerance, and thermal aerobic scope in clownfish Amphiprion ocellaris (Cuvier, 1830) predict its aquaculture potential across tropical regions. International Aquatic Research, 11.https://doi.org/10.1007/s40071-019-0228-7 
+
