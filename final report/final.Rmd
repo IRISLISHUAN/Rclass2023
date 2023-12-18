@@ -1,0 +1,426 @@
+---
+title: "R-class final report"
+author: "Lin, Ting-Chang, Chang, Hsin-Yu, Liu, Li-Hsuan"
+date: "2023-12-08"
+output: html_document
+---
+
+Group members:
+R12241209 Lin, Ting-Chang, 
+R12241202 Chang, Hsin-Yu, 
+R12241206 Liu, Li-Hsuan
+
+Introduction
+
+  In this project, we manipulated the <em>‘IMOS - National Reef Monitoring Network Sub-Facility - Global reef fish abundance and biomass’</em> data set from Systematic global assessment of reef fish communities by the Reef Life Survey program. After manipulating the data, we observed that most of it was collected around Australia. Thus, we decided to restrict our survey area in Australia. We identified two genera, <em>Amphiprion</em> and <em>Hypoplectrodes</em>, which are distributed in the northern and southern coastal areas of Australia, respectively. We chose to compare the species composition of <em>Amphiprion</em> and <em>Hypoplectrodes</em> during El Niño years and normal years to assess if El Niño has different impacts on tropical and subtropical genera.
+
+  Yet, after calculating the number of individuals of <em>Hypoplectrodes</em> in different years, we discovered a dominant species, <em>Hypoplectrodes maccullochi</em>, within the genus <em>Hypoplectrodes</em> around Australia. Recognizing that the test of homogeneity would be inefficient in this case, we decided to shift our focus and compare the species composition of <em>Amphiprion</em> and <em>Lutjanus</em>. Both genera have sufficient survey data in this dataset.
+
+•	El Niño
+During El Niño years, the weakening of trade winds causes the North Pacific warm pool to shift toward the east side. As a result, the surface seawater temperature (SST) around Australia will be lower than normal. We expect this difference in SST will have impacts on species composition of tropical and subtropical genera to different extent.
+(https://geographical.co.uk/science-environment/geo-explainer-el-nino)
+
+•	The optimal temperature for Amphiprion, Hypoplectrodes and Lutjanus
+Amphiprion: For the well-researched A. ocellaris,  the optimal temperature is said to be around 29℃ or 30℃ (Soman et al., 2021; Velasco et al., 2019).
+Hypoplectrodes: According to FishBase (https://www.fishbase.se/search.php), the dominant species in Australia, H. maccullochi, has a preferred temperature range of 17.3℃ to 24.7℃.
+Lutjanus: There are abundant species in this genus, so we can only generalize their preferred temperature range to be between 18℃ and 29℃.
+
+•	Hypothesis
+H0: The species composition of Amphiprion and Lutjanus during El Niño years and normal years shows no differences.
+H1: The species composition of Amphiprion and Lutjanus during El Niño years and normal years shows differences.
+
+Methods
+
+Check the working directory.
+```{r}
+getwd()
+```
+
+
+Library all packages we would use.
+```{r, message=FALSE, warning=FALSE}
+library(readxl)
+library(data.table)
+library(leaflet)
+library(rgbif)
+library(tidyverse)
+library(data.table)
+library(dplyr)
+library(sf)
+library(tidyr)
+library(leaflet.extras)
+library(ggplot2)
+library(ggeasy)
+```
+
+Check the data and make it more clear and visual.
+```{r, message=FALSE, warning=FALSE}
+#read the data file
+Data <- fread("IMOS.csv", fill=TRUE, na.strings = c("", NA))
+
+#change the format to data table
+Data_dt <- as.data.table(Data)
+
+#deleted all the unimportant information
+Data_dt <-Data_dt[-c(1:71), ]
+
+#make every colon with right name
+colnames(Data_dt) <- as.character(Data_dt[1, ])
+Data_dt <-Data_dt[-c(1), ]
+```
+
+
+We chose Australia as the place we want to focus on.
+
+Make a subset of survey data that is from Australia.
+```{r, message=FALSE, warning=FALSE}
+
+#select all data from Australia
+Aus <- Data_dt$country=="Australia"
+Australia <- Data_dt[Aus,]
+
+#separate species name and time
+#On the name, we want to separate the genera and specific epithets into two columns
+#On the time we want to separate by year, month and day into three columns
+Australia<-separate(Australia, reporting_name, c("Genus", "name"), " ")
+Australia<- separate(Australia, survey_date, c("Year", "Month", "Day"), "-")
+
+#change longitude, latitude and species total number as numeric format
+Australia$longitude <- as.numeric(Australia$longitude)
+Australia$latitude <- as.numeric(Australia$latitude)
+Australia$total <-as.numeric(Australia$total)
+
+#change format to data table
+Australia<- as.data.table(Australia)
+```
+
+
+As we mentioned in the introduction, we chose three genera to test whether their distribution density had changed in two different years. 
+
+
+Make subset of three genera.
+```{r}
+#Amphiprion
+amp <- Australia$Genus=="Amphiprion"
+Amphiprion<- Australia[amp,]
+
+#Hypoplectrodes
+hyp <- Australia$Genus=="Hypoplectrodes"
+Hypoplectrodes<- Australia[hyp,]
+
+#Lutjanidae
+lut <- Australia$Genus=="Lutjanus"
+Lutjanus<- Australia[lut,]
+```
+
+Choose the data from 2016 and 2019, and make them become an independent data table.
+```{r}
+#2016
+
+#Amphiprion
+Amp_2016 <- Amphiprion$Year=="2016"
+Amphiprion_2016 <- Amphiprion[Amp_2016,]
+
+#Hypoplectrodes
+Hyp_2016 <- Hypoplectrodes$Year=="2016"
+Hypoplectrodes_2016 <- Hypoplectrodes[Hyp_2016,]
+
+#Lutjanidae
+Lut_2016 <- Lutjanus$Year=="2016"
+Lutjanus_2016 <- Lutjanus[Lut_2016,]
+
+
+#2019
+#high temperature
+
+#Amphiprion
+Amp_2019 <- Amphiprion$Year=="2019"
+Amphiprion_2019 <- Amphiprion[Amp_2019,]
+
+#Amphiprion
+Hyp_2019 <- Hypoplectrodes$Year=="2019"
+Hypoplectrodes_2019 <- Hypoplectrodes[Hyp_2019,]
+
+#Amphiprion
+Lut_2019 <- Lutjanus$Year=="2019"
+Lutjanus_2019 <- Lutjanus[Lut_2019,]
+```
+
+Before we started to analyze the data, we made a map to check the distribution of these three genera.
+
+Distribution of three genera in 2016 and 2019.
+```{r}
+Distribution <- leaflet() %>%
+  addTiles() %>%
+  addMarkers(data=Amphiprion_2016, group= "Amphiprion_2016", ~longitude, ~latitude)%>%
+  addMarkers(data=Amphiprion_2019, group= "Amphiprion_2019", ~longitude, ~latitude)%>%
+  addMarkers(data=Hypoplectrodes_2016, group= "Hypoplectrodes_2016", ~longitude, ~latitude)%>%
+  addMarkers(data=Hypoplectrodes_2019, group= "Hypoplectrodes_2019", ~longitude, ~latitude)%>%
+  addMarkers(data=Lutjanus_2016, group= "Lutjanus_2016", ~longitude, ~latitude)%>%
+  addMarkers(data=Lutjanus_2019, group= "Lutjanus_2019", ~longitude, ~latitude)%>%
+  addLayersControl(baseGroups = c("Amphiprion_2016", "Amphiprion_2019","Hypoplectrodes_2016", "Hypoplectrodes_2019","Lutjanus_2016", "Lutjanus_2019"  ),
+    options = layersControlOptions(collapsed = FALSE)
+  )
+
+Distribution
+```
+
+Step by step on each genus.First one is Amphiprion.
+
+Check how many species have been observed and their observation numbers in 2016 and 2019.
+```{r}
+#2016
+
+#Create a new column named number to sum all the observation numbers by their names.
+Amphiprion_2016 <- Amphiprion_2016[, number := sum(total), by= species_name]
+
+#Make another table that only contains species name, family and observation numbers
+Amphiprion_2016_species <- Amphiprion_2016[, unique(number), by =c("species_name", "family")]
+
+#change the column name
+Amphiprion_2016_species<- dplyr::rename(Amphiprion_2016_species, species_number=V1)
+
+#Use a bar plot to see the observation numbers for each species.
+#This plot represents every species observation number for Amphiprion in 2016.
+ggplot(Amphiprion_2016_species, aes(x= species_name, y= species_number)) +
+  geom_bar(stat = "identity")+
+  ggtitle("Amphiprion species 2016")+
+  ggeasy::easy_center_title()+
+  theme(axis.text.x = element_text(vjust = 0.65, angle = 30))
+
+#2019
+#Use the same method as above to create the bar plot of every species observation number of Amphiprion in 2019.
+Amphiprion_2019 <- Amphiprion_2019[, number := sum(total), by= species_name]
+Amphiprion_2019_species <- Amphiprion_2019[, unique(number), by =c("species_name", "family")]
+Amphiprion_2019_species<- dplyr::rename(Amphiprion_2019_species, species_number=V1)
+
+ggplot(Amphiprion_2019_species, aes(x= species_name, y= species_number)) +
+  geom_bar(stat = "identity")+
+  ggtitle("Amphiprion species 2019 ")+
+  ggeasy::easy_center_title()+
+  theme(axis.text.x = element_text(vjust = 0.65, angle = 30))
+```
+
+Compare species between 2016 and 2019, and choose those species that were both observed in 2016 and 2019. And make a bar plot of their observation numbers.
+```{r}
+#2016
+
+#Deleted those species not observed in 2016
+Amphiprion_2016_species_7 <- Amphiprion_2016_species[-c(1,9),]
+
+#bar plot of 2016
+ggplot(Amphiprion_2016_species_7, aes(x= species_name, y= species_number)) +
+  geom_bar(stat = "identity")+
+  ggtitle("Amphiprion choose species 2016")+
+  ggeasy::easy_center_title()+
+  theme(axis.text.x = element_text(vjust = 0.65, angle = 35))
+
+Amphiprion_2016_species_7[, year:= 2016, by ="family"]
+
+#Deleted those species not in 2019
+Amphiprion_2019_species_7 <- Amphiprion_2019_species[-4,]
+
+#bar plot of 2019
+ggplot(Amphiprion_2019_species_7, aes(x= species_name, y= species_number)) +
+  geom_bar(stat = "identity")+
+  ggtitle("Amphiprion choose species 2019")+
+  ggeasy::easy_center_title()+
+  theme(axis.text.x = element_text(vjust = 0.65, angle = 35))
+
+Amphiprion_2019_species_7[, year:= 2019, by ="family"]
+```
+
+However, we think that using direct observation numbers to test if there is a significant change between these two years is too subjective. Then we use the observation number divided by the survey number to calculate each species' density.
+```{r}
+Amphiprion_2019_2016 <- rbind(Amphiprion_2019_species_7, Amphiprion_2016_species_7)
+
+#Use species number/ survey number= density
+Amphiprion_2019_2016[year=="2019", density:= (species_number/nrow(Amphiprion_2019))]
+Amphiprion_2019_2016[year=="2016", density:= (species_number/nrow(Amphiprion_2016))]
+
+#The value of density is a little bit low, so we use log for transformation.
+Amphiprion_2019_2016[,log:= log(density)]
+```
+
+Use two sample t-test and Fligner-Killeen test to test if it is significant between 2016 and 2019.
+```{r}
+#Two sample t-test
+t.test(Amphiprion_2019_2016$density~Amphiprion_2019_2016$year)
+
+#Fligner-Killeen test
+fligner.test (Amphiprion_2019_2016$density~Amphiprion_2019_2016$year)
+```
+Both p-value are higher than 0.05, so reject our H0 hypothesis.
+
+
+Next we make another bar plot to see the density difference between 2016 to 2019 on different species.
+```{r}
+#Change the column name
+Amphiprion_2019_2016_19<-Amphiprion_2019_2016[1:7,]
+colnames(Amphiprion_2019_2016_19)[3:6]<-c("species_number_2019", "year_2019", "density_2019", "log_2019")
+Amphiprion_2019_2016_16<-Amphiprion_2019_2016[8:14,]
+colnames(Amphiprion_2019_2016_16)[3:6]<-c("species_number_2016", "year_2016", "density_2016", "log_2016")
+
+#Combined two data table of different years
+Amphiprion_2019_2016_new <-merge(Amphiprion_2019_2016_19, Amphiprion_2019_2016_16)
+
+#Calculate density difference of two years and make it to a new column
+Amphiprion_2019_2016_new[, difference:=(log_2019-log_2016)]
+
+#bar plot
+ggplot(Amphiprion_2019_2016_new, aes(x= species_name, y= difference)) +
+  geom_bar(stat = "identity")+
+  scale_y_continuous(limits = c(-4,4))+
+  ggtitle("Amphiprion density difference")+
+  ggeasy::easy_center_title()+
+  theme(axis.text.x = element_text(vjust = 0.65, angle = 35))
+```
+
+Second genus is Hypoplectrodes.
+
+Use the same steps as above.
+
+Check how many species have been observed and their observation numbers in 2016 and 2019.
+```{r}
+#2016
+Hypoplectrodes_2016 <-as.data.table(Hypoplectrodes_2016)
+Hypoplectrodes_2016<- Hypoplectrodes_2016[, number := sum(total), by=species_name]
+Hypoplectrodes_2016_species <- Hypoplectrodes_2016[, unique(number), by =c("species_name", "family")]
+Hypoplectrodes_2016_species<- dplyr::rename(Hypoplectrodes_2016_species, species_number=V1)
+
+ggplot(Hypoplectrodes_2016_species, aes(x= species_name, y= species_number)) +
+  geom_bar(stat = "identity")+
+  ggtitle("Hypoplectrodes species 2016")+
+  ggeasy::easy_center_title()+
+  theme(axis.text.x = element_text(vjust = 0.65))
+
+
+#2019
+Hypoplectrodes_2019 <-as.data.table(Hypoplectrodes_2019)
+Hypoplectrodes_2019<- Hypoplectrodes_2019[, number := sum(total), by=species_name]
+Hypoplectrodes_2019_species <- Hypoplectrodes_2019[, unique(number), by =c("species_name", "family")]
+Hypoplectrodes_2019_species<- dplyr::rename(Hypoplectrodes_2019_species, species_number=V1)
+
+ggplot(Hypoplectrodes_2019_species, aes(x= species_name, y= species_number)) +
+  geom_bar(stat = "identity")+
+  ggtitle("Hypoplectrodes species 2019")+
+  ggeasy::easy_center_title()+
+  theme(axis.text.x = element_text(vjust = 0.65))
+```
+We found that in the genus Hypoplectrodes, there was just one dominant species in 2016 and 2019.So it is hard to test the difference between two years. And then we change the target genus from Hypoplectrodes to Lutjanus.
+
+
+Third genus is Lutjanus
+Also we use the same steps as above.
+First is to check how many species have been observed and their observation numbers in 2016 and 2019.
+```{r}
+#2016
+Lutjanus_2016 <-as.data.table(Lutjanus_2016)
+Lutjanus_2016<- Lutjanus_2016[, number := sum(total), by=species_name]
+Lutjanus_2016_species <- Lutjanus_2016[, unique(number), by =c("species_name", "family")]
+Lutjanus_2016_species<- dplyr::rename(Lutjanus_2016_species, species_number=V1)
+
+ggplot(Lutjanus_2016_species, aes(x= species_name, y= species_number)) +
+  geom_bar(stat = "identity")+
+  ggtitle("Lutjanus species 2016")+
+  ggeasy::easy_center_title()+
+  theme(axis.text.x = element_text(vjust = 0.65, angle = 35))
+
+#2019
+Lutjanus_2019 <-as.data.table(Lutjanus_2019)
+Lutjanus_2019<- Lutjanus_2019[, number := sum(total), by=species_name]
+Lutjanus_2019_species <- Lutjanus_2019[, unique(number), by =c("species_name", "family")]
+Lutjanus_2019_species<- dplyr::rename(Lutjanus_2019_species, species_number=V1)
+
+ggplot(Lutjanus_2019_species, aes(x= species_name, y= species_number)) +
+  geom_bar(stat = "identity")+
+  ggtitle("Lutjanus species 2019")+
+  ggeasy::easy_center_title()+
+  theme(axis.text.x = element_text(vjust = 0.65, angle = 35))
+```
+
+Compare species between 2016 and 2019, and choose those species that were both observed in 2016 and 2019. And make a bar plot of their observation numbers.
+```{r}
+#2016
+Lutjanus_2016_species_12 <- Lutjanus_2016_species[-c(3,13,15,16,17),]
+
+ggplot(Lutjanus_2016_species_12, aes(x= species_name, y= species_number)) +
+  geom_bar(stat = "identity")+
+  ggtitle("Lutjanus choose species 2016")+
+  ggeasy::easy_center_title()+
+  theme(axis.text.x = element_text(vjust = 0.65, angle = 35))
+
+Lutjanus_2016_species_12[, year:= 2016, by ="family"]
+
+
+#2019
+Lutjanus_2019_species_12<- Lutjanus_2019_species[-c(7,10,13),]
+
+ggplot(Lutjanus_2019_species_12, aes(x= species_name, y= species_number)) +
+  geom_bar(stat = "identity")+
+  ggtitle("Lutjanus choose species 2019")+
+  ggeasy::easy_center_title()+
+  theme(axis.text.x = element_text(vjust = 0.65, angle = 35))
+
+Lutjanus_2019_species_12[, year:= 2019, by ="family"]
+```
+
+Use the observation number divided by the survey number to calculate each species' density.
+```{r}
+Lutjanus_2019_2016 <- rbind(Lutjanus_2019_species_12, Lutjanus_2016_species_12)
+
+#use species number/ survey number= density
+Lutjanus_2019_2016[year=="2019", density:= (species_number/nrow(Lutjanus_2019))]
+Lutjanus_2019_2016[year=="2016", density:= (species_number/nrow(Lutjanus_2019))]
+
+Lutjanus_2019_2016[,log:= log(density)]
+
+Lutjanus_2019_2016$year<- as.character(Lutjanus_2019_2016$year)
+
+```
+
+Use two sample t-test and Fligner-Killeen test to test if it is significant between 2016 and 2019.
+```{r}
+t.test(Lutjanus_2019_2016$density~Lutjanus_2019_2016$year)
+
+fligner.test(Lutjanus_2019_2016$density~Lutjanus_2019_2016$year)
+```
+Both p-value are higher than 0.05, so reject our H0 hypothesis
+
+The density difference between 2016 to 2019 on different species in Lutjanus.
+```{r}
+Lutjanus_2019_2016_19<-Lutjanus_2019_2016[1:12,]
+colnames(Lutjanus_2019_2016_19)[3:6]<-c("species_number_2019", "year_2019", "density_2019", "log_2019")
+Lutjanus_2019_2016_16<-Lutjanus_2019_2016[13:24,]
+colnames(Lutjanus_2019_2016_16)[3:6]<-c("species_number_2016", "year_2016", "density_2016", "log_2016")
+
+Lutjanus_2019_2016_w_new <- merge(Lutjanus_2019_2016_19, Lutjanus_2019_2016_16)
+
+Lutjanus_2019_2016_w_new[, difference:=(log_2019-log_2016)]
+
+ggplot(Lutjanus_2019_2016_w_new, aes(x= species_name, y= difference)) +
+  geom_bar(stat = "identity")+
+  scale_y_continuous(limits = c(-5,5))+
+  ggtitle("Lutjanus density difference")+
+  ggeasy::easy_center_title()+
+  theme(axis.text.x = element_text(vjust = 0.65, angle = 35))
+```
+
+
+Result & Discussion
+
+In the Australian marine region, the density of different species in the genus Amphiprion showed no difference between the years 2016 and 2019 (two sample t-test p = 0.4939, Fligner-Killeen test of homogeneity p = 0.7819). While the density of different species in the genus Lutjanus also had no difference between 2016 and 2019 (two sample t-test p = 0.755, Fligner-Killeen test of homogeneity p = 0.5737). These results reject our hypothesis that El Niño and normal years would have differences in genus compositions.
+
+With the unexpected result, we present several possibilities to explain it as much as possible. First, we found out that although 2016 was recorded to have the most dramatic El Niño event in recent years, it surprisingly had higher sea surface temperature (SST) in Australia compared with 2019. This fact may be evidence that the climate change impact on SST was already overtaking the El Niño event, which led to abnormal SST changes under El Niño and normal years. Therefore, when climate change disturbs the effect of El Niño, the impact on these research genera may be neutralized or intensified.
+
+![](/Users/IRIS/Documents/R_class/Rclass2023/final report/SST_2016.png)
+
+#reference: "http://www.bom.gov.au/climate/current/annual/aus/2016/#tabs=Sea-surface-temperature"
+
+![](/Users/IRIS/Documents/R_class/Rclass2023/final report/SST_2019.png)
+
+#reference: "http://www.bom.gov.au/climate/current/annual/aus/2019/#tabs=Sea-surface-temperature"
+
+Second, to understand the impact of El Niño, we chose 2016 (El Niño year) and 2019 (relatively normal year) with enough genus and species data. However, the time between these two years may not be long enough for the composition of these genera to change. In other words, the genus composition would not change dramatically between these two years. Third, according to the dataset description, the resources of the dataset came from different collaboration memberships. One of the biggest problems was the method of recording the fish, it depended on the diving and recording skills of marine scientists and divers, and other partnerships. With non-specific members, timing, and location, could lead to various biases in fish abundance and affect the research result.
+
+To gain a more specific understanding of the changes in genus composition, two plots illustrating changes in species density were presented.  The result showed that both genera (Amphiprion and Lutjanus) did not have specific change patterns between 2016 and 2019. The possible reason is that these two genera have similar habitat preferences, which are both largely distributed in tropical and sub-tropical oceans. Therefore, they might have similar responses to environmental change, but unfortunately, there were no significant changes can be found in our research (some species' densities increase, others decrease in both genera).
