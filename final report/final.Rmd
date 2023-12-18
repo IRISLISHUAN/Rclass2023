@@ -18,7 +18,7 @@ During El Niño years, the weakening of trade winds causes the North Pacific war
 
 •The optimal temperature for <em>Amphiprion</em>, <em>Hypoplectrodes</em> and <em>Lutjanus</em>
 
-<em>Amphiprion</em>: For the well-researched A. ocellaris,  the optimal temperature is said to be around 29℃ or 30℃ (Soman et al., 2021; Velasco et al., 2019).
+<em>Amphiprion</em>: For the well-researched <em>A. ocellaris</em>,  the optimal temperature is said to be around 29℃ or 30℃ (Soman et al., 2021; Velasco et al., 2019).
 <em>Hypoplectrodes</em>: According to FishBase (https://www.fishbase.se/search.php), the dominant species in Australia, H. maccullochi, has a preferred temperature range of 17.3℃ to 24.7℃.
 <em>Lutjanus</em>: There are abundant species in this genus, so we can only generalize their preferred temperature range to be between 18℃ and 29℃.
 
@@ -109,7 +109,7 @@ lut <- Australia$Genus=="Lutjanus"
 Lutjanus<- Australia[lut,]
 ```
 
-Choose the data from 2016 and 2019, and make them become an independent data table.
+Choose the data from 2016(El Niño year) and 2019(normal year), and make them become an independent data table.
 ```{r}
 #2016
 
@@ -240,7 +240,7 @@ Amphiprion_2019_2016[year=="2016", density:= (species_number/nrow(Amphiprion_201
 Amphiprion_2019_2016[,log:= log(density)]
 ```
 
-Use two sample t-test and Fligner-Killeen test to test if it is significant difference between 2016 and 2019.
+Use two sample t-test and Fligner-Killeen test to test if species composition are significant different between 2016 and 2019.
 ```{r}
 #Two sample t-test
 t.test(Amphiprion_2019_2016$density~Amphiprion_2019_2016$year)
@@ -380,7 +380,7 @@ Lutjanus_2019_2016$year<- as.character(Lutjanus_2019_2016$year)
 
 ```
 
-Use two sample t-test and Fligner-Killeen test to test if it is significant between 2016 and 2019.
+Use two sample t-test and Fligner-Killeen test to test if species composition are significant different between 2016 and 2019.
 ```{r}
 t.test(Lutjanus_2019_2016$density~Lutjanus_2019_2016$year)
 
@@ -388,7 +388,7 @@ fligner.test(Lutjanus_2019_2016$density~Lutjanus_2019_2016$year)
 ```
 Both p-value are higher than 0.05, so reject our H0 hypothesis
 
-The density difference between 2016 to 2019 on different species in Lutjanus.
+The density difference between 2016 to 2019 on different species in <em>Lutjanus</em>.
 ```{r}
 Lutjanus_2019_2016_19<-Lutjanus_2019_2016[1:12,]
 colnames(Lutjanus_2019_2016_19)[3:6]<-c("species_number_2019", "year_2019", "density_2019", "log_2019")
