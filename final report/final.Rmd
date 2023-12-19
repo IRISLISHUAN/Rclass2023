@@ -25,7 +25,6 @@ During El Niño years, the weakening of trade winds causes the North Pacific war
 •Hypothesis
 
 H0: The species composition of <em>Amphiprion</em> and <em>Lutjanus</em> during El Niño years and normal years shows no differences.
-
 H1: The species composition of <em>Amphiprion</em> and <em>Lutjanus</em> during El Niño years and normal years shows differences.
 
 <font size="5">Methods</font><br>
