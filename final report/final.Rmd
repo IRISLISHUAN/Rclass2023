@@ -71,7 +71,6 @@ We chose Australia as the place we want to focus on.
 
 Make a subset of survey data that is from Australia.
 ```{r, message=FALSE, warning=FALSE}
-
 #select all data from Australia
 Aus <- Data_dt$country=="Australia"
 Australia <- Data_dt[Aus,]
@@ -92,7 +91,6 @@ Australia<- as.data.table(Australia)
 ```
 
 As we mentioned in the introduction, we chose three genera to test our hypothesis.
-
 
 Make subset of three genera.
 ```{r}
@@ -306,7 +304,8 @@ ggplot(Hypoplectrodes_2019_species, aes(x= species_name, y= species_number)) +
   ggeasy::easy_center_title()+
   theme(axis.text.x = element_text(vjust = 0.65))
 ```
-We found that in the genus Hypoplectrodes, there was just one dominant species in 2016 and 2019.So it was hard to test the difference between two years. And then we changed the target genus from Hypoplectrodes to Lutjanus.
+
+We found that in the genus <em>Hypoplectrodes</em>, there was just one dominant species in 2016 and 2019.So it was hard to test the difference between two years. And then we changed the target genus from <em>Hypoplectrodes</em> to <em>Lutjanus</em>.
 
 
 Third genus is <em>Lutjanus</em>
